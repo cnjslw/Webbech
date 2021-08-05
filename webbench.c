@@ -1,5 +1,3 @@
-    
-	
 	/*
 	webbench：
 		简单的网站压力测试工具
@@ -24,7 +22,7 @@
      *    3 - internal error, fork failed
      *
      如何使用webbench ；把源代码编译成webbench后，在shell中使用如下
-的命令行: webbench -c 100 -t 60 http：//www.baidu.com/（注意末尾的'/'不能少。）
+的命令行。webbench -c 100 -t 60 http：//www.baidu.com/（注意末尾的'/'不能少。）
      */
 	
 	/* 这个socket。c文件是自己写的*/
@@ -43,16 +41,16 @@
     
     /*
 	测试的结果，其实用一个结构体表示更完善。
-	子进程把他们的各自的speed，failed，bytes写到管道文件里。
-    */
+	子进程把他们的各自的speed，failed，bytes写到管道文件里，各个子进程测试完成以后，父进程把管道里面的类似struct{int speed；int failed；int bytes }结构体数组的所有的元素进行汇总
+	*/
     int speed = 0;
     int failed = 0;
     int bytes = 0;
     
     int http10 = 1; /* 0 - http/0.9, 1 - http/1.0, 2 - http/1.1 */
     /* 
-	method: GET, HEAD, OPTIONS, TRACE以下这些宏是从命令行参数里获得用户输入时候使用，下面这些变量大部分是用来获取用户输入的。在getopt_long里使用
-    */
+	method: GET, HEAD, OPTIONS, TRACE以下这些宏是从命令行参数里获得用户输入时候使用，下面这些变量大部分是用来获取用户输入的。在getopt_long()里使用
+	*/
     #define METHOD_GET 0
     #define METHOD_HEAD 1
     #define METHOD_OPTIONS 2
@@ -66,8 +64,8 @@
     int proxyport = 80;
     char *proxyhost = NULL;
     int benchtime = 30;			//模拟客户端的运行时间
-    
     int mypipe[2];
+
 	//主机地址的字符串
     char host[MAXHOSTNAMELEN];
     #define REQUEST_SIZE 2048	
@@ -90,11 +88,11 @@
     	int val;
     }
     */
+
     static const struct option long_options[] =
     {
     //用户如果输入--force选项，则把第三个参数force这个全局变量的值赋值为1。这样程序后面就可以根据用户的选择做处理了
      {"force",no_argument,&force,1},
-    
      {"reload",no_argument,&force_reload,1},
      {"time",required_argument,NULL,'t'},
      {"help",no_argument,NULL,'?'},
@@ -118,7 +116,7 @@
 	//测试函数，在获取用户的各种输入以后调用。
     static int bench(void);
 	
-	//把用户输入的webbench -c 100 -t 60 http：//www。baidu。com/这种命令的参数整理出来。
+	//把用户输入的webbench -c 100 -t 60 http：//www.baidu.com/这种命令的参数整理出来。
     static void build_request(const char *url);
 	
 	//下面的函数是注册成sigalrm信号的处理函数。
@@ -129,7 +127,7 @@
 	
     //以下为用户进行了错误的输入选项和参数后提示用户的。
     static void usage(void)
-    {//打印到st derr，会在屏幕上显示出来
+    {//打印到stderr，会在屏幕上显示出来
     	fprintf(stderr,
     		"webbench [option]... URL\n"
     		"  -f|--force               Don't wait for reply from server.\n"
@@ -182,7 +180,7 @@
     			/*
 				strrchr(const char * s ,int c):查找字符在字符串中最后一次出现的位置，返回该字符及其后面的字符串，
 				比如strrchr(cabbbab，a)返回的位置是ca这个a所在的位置。
-			*/
+				*/
 				
 			//用户的 输入是IP地址加冒号加端口号，所以通过查冒号来确定字符串把ip地址和端口号分开的位置 127.0.0.1：80
     			tmp = strrchr(optarg, ':');
@@ -304,7 +302,7 @@
     	}
     
     	/*
-		前面用strc py拷贝，因为request里面是空的。
+		前面用strcpy拷贝，因为request里面是空的。
 		现在request里面有东西了，所以只能拼接了。
 		strcat是字符串连接函数，可以直接连接。
 		以下代码request加个空格request的内容由get变成get+" "
@@ -315,14 +313,14 @@
 		那这里strchr是查找字符，若有则返回地址，否则返回NULL。
 		url是optind指向的字符串，是这个函数的参数。
 		下面代码表示字符串里没有关键的地址符号
-	*/
+		*/
     	if (NULL == strstr(url, "://"))
     	{
     		fprintf(stderr, "\n%s: is not a valid URL.\n", url);
     		exit(2);
     	}
 		/*
-		下面代码表示字符串太长了，也就是argv【optind】太长了，也就是用户输入的网址太长了，
+		下面代码表示字符串太长了，也就是argv[optind]太长了，也就是用户输入的网址太长了，
 		所以出错。超出了程序预设缓冲区的大小吧
 		防止缓存区溢出是一种安全措施，见linux c编程实战P309
 		*/
@@ -336,7 +334,7 @@
 		因为只有使用了-p选项后，才可以在之前给proxy赋值，不然，其一直为NULL
     	如果不是使用代理，那么就不能使用http之外的协议
     	*/
-    	/*
+    /*
 		strncasecmp函数
 		头文件：#include <string.h>
     　　函数定义：int strncasecmp(const char *s1, const char *s2, size_t n)
@@ -393,11 +391,11 @@
 			//host和端口是分开拷贝的，下面这句话是拷贝host的。拷贝的是 http://www.baidu.com:3300/中的 www.baidu.com
     			strncpy(host, url + i, strchr(url + i, ':') - url - i);
     			bzero(tmp, 10);
-	/*
-	 将这句话分解
-	 strncpy(tmp, index(url + i, ':') + 1这个地址是：3300，这个冒号的地址+1 也就是3的位置，从这个位置来拷贝端口 ,
-	 以下是计算拷贝多少 strchr(url + i, '/')这个是3300/最后这个/的地址 - index(url + i, ':')这个是：3300的冒号的地址 - 1)，这样就是要拷贝的地址数量了。;
-	 */
+/*
+ 将这句话分解
+ strncpy(tmp, index(url + i, ':') + 1这个地址是：3300，这个冒号的地址+1 也就是3的位置，从这个位置来拷贝端口 ,
+ 以下是计算拷贝多少 strchr(url + i, '/')这个是3300/最后这个/的地址 - index(url + i, ':')这个是：3300的冒号的地址 - 1)，这样就是要拷贝的地址数量了。;
+ */
  
     			strncpy(tmp, index(url + i, ':') + 1, strchr(url + i, '/') - index(url + i, ':') - 1);	//复制端口号
 				
@@ -411,15 +409,15 @@
     		{
     			/*
 				下面的代码是获取当用户只输入地址没有端口的情况htt：//www.baidu.com，
-				这样直接把www。baidu。com的域名字符串拷贝到host字符串，
+				这样直接把www.baidu.com的域名字符串拷贝到host字符串，
 				host字符串是放到socket那个函数去使用的，区别于requset字符串，不要混淆。
     			在两个 / 之间就是完整的ip地址，在函数开始，就将host清空了，所以这里的复制不用担心，例如： http://www.baidu.com/
     			strcspn(a,b)函数，会返回a中从开头连续不含b字符串的个数注意这里的url+i是指向 http://的末尾的。	
-			*/
+				*/
     			strncpy(host, url + i, strcspn(url + i, "/"));
     		}
     		//可以用这个代码 printf("Host=%s\n",host)看看host的值;
-		//注释request + strlen(request)表示前面已经写好的字符串跳过，不要被篡改
+			//注释request + strlen(request)表示前面已经写好的字符串跳过，不要被篡改
     		strcat(request + strlen(request), url + i + strcspn(url + i, "/"));
     	}
     	//使用代理服务器
@@ -429,7 +427,7 @@
     		/*
     		strcat(a,b)函数是会将b接在a的后面，不会覆盖原来字符串a的内容
     		*/
-    		strcat(request, url);	//使用了代理服务器后，其请求行必须是完整的UIR
+    		strcat(request, url);	//使用了代理服务器后，其请求行必须是完整的URI
     	}
     	if (http10 == 1)
     		strcat(request, " HTTP/1.0");
@@ -556,7 +554,7 @@
     
     		while (1)
     		{//从管到你读数据，一次读三个。读完之后数据就会消失掉
-    			pid = fscanf(f, "%d %d %d", &i, &j, &k);
+    			pid = fscanf(f, "%d %d %d", &i, &j, &k); 
     			if (pid < 2)
     			{
     				fprintf(stderr, "Some of our childrens died.\n");
@@ -648,6 +646,3 @@
     	speed++;
     }
     }
-
-
-
